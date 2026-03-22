@@ -82,15 +82,16 @@ INSTRUCCIONES:
     }
   }, []);
 
-  const handleSend = useCallback(async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = useCallback(async (overrideInput?: string) => {
+    const messageToUse = typeof overrideInput === 'string' ? overrideInput : input;
+    if (!messageToUse.trim() || isLoading) return;
     if (!chatRef.current) {
       setMessages((prev) => [...prev, { role: 'model', text: 'El chatbot no está disponible porque falta la clave de API de Gemini.' }]);
       return;
     }
 
-    const userMessage = input.trim();
-    setInput('');
+    const userMessage = messageToUse.trim();
+    if (!overrideInput) setInput('');
     setMessages((prev) => [...prev, { role: 'user', text: userMessage }]);
     setIsLoading(true);
 
@@ -311,7 +312,7 @@ INSTRUCCIONES:
                   disabled={isLoading}
                 />
                 <button
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={!input.trim() || isLoading}
                   aria-label="Enviar mensaje"
                   className="absolute right-2 w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
